@@ -37,10 +37,37 @@ fn calculate_game_size(root: &Path, crc: &str, serial: &str, parts: u8) -> u64 {
 pub fn rename_game(mount_point: String, old_name: String, new_name: String) -> Result<(), String> {
     let structure = OplStructure::new(Path::new(&mount_point));
     let ul_cfg_path = structure.ul_cfg_path();
+    let root = Path::new(&mount_point);
     
     let mut config = UlConfig::load(&ul_cfg_path).map_err(|e| e.to_string())?;
+    
+    let game = config.games.iter().find(|g| g.name == old_name)
+        .ok_or_else(|| format!("Game '{}' not found", old_name))?;
+    let serial = game.serial.clone();
+    let parts = game.parts;
+    
+    rename_game_chunks(root, &old_name, &new_name, &serial, parts)?;
+    
     config.rename_game(&old_name, &new_name).map_err(|e| e.to_string())?;
     config.save().map_err(|e| e.to_string())
+}
+
+fn rename_game_chunks(root: &Path, old_name: &str, new_name: &str, serial: &str, parts: u8) -> Result<(), String> {
+    let old_crc = get_game_name_crc(old_name);
+    let new_crc = get_game_name_crc(new_name);
+    
+    for part in 0..parts {
+        let old_filename = format!("ul.{}.{}.{:02}", old_crc, serial, part);
+        let new_filename = format!("ul.{}.{}.{:02}", new_crc, serial, part);
+        let old_path = root.join(&old_filename);
+        let new_path = root.join(&new_filename);
+        
+        if old_path.exists() {
+            std::fs::rename(&old_path, &new_path).map_err(|e| e.to_string())?;
+        }
+    }
+    
+    Ok(())
 }
 
 #[tauri::command]

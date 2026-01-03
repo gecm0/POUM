@@ -8,5 +8,3 @@ manejar releases automaticas de github y crear las releases
 actualizar documentacion
 ---
 icono app (tanto fav como app en si)
----
-renombrar proyecto y textos

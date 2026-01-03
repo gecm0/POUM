@@ -8,9 +8,9 @@ export function Header() {
           <Gamepad2 className="h-6 w-6 text-primary-foreground" />
         </div>
         <div>
-          <h1 className="text-xl font-bold tracking-tight">PS2 USB Manager</h1>
+          <h1 className="text-xl font-bold tracking-tight">POUM</h1>
           <p className="text-sm text-muted-foreground">
-            Manage your Open PS2 Loader games
+            PS2 OPL USB Manager
           </p>
         </div>
       </div>

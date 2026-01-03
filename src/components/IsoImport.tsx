@@ -156,10 +156,11 @@ export function IsoImport({ mountPoint, availableSpace, onComplete }: IsoImportP
   const successCount = files.filter((f) => f.status === "success").length;
   const errorCount = files.filter((f) => f.status === "error").length;
   
-  const totalRequiredSpace = files
-    .filter((f) => f.status === "pending")
-    .reduce((sum, f) => sum + f.size, 0);
-  const hasInsufficientSpace = totalRequiredSpace > availableSpace;
+  const totalSize = files.reduce((sum, f) => sum + f.size, 0);
+  const pendingFiles = files.filter((f) => f.status === "pending");
+  const pendingSize = pendingFiles.reduce((sum, f) => sum + f.size, 0);
+  
+  const hasInsufficientSpace = pendingSize > availableSpace;
   const canConvert = files.length > 0 && files.every((f) => f.name.trim()) && state === "idle" && !hasInsufficientSpace;
 
   const formatBytes = (bytes: number): string => {
@@ -169,9 +170,9 @@ export function IsoImport({ mountPoint, availableSpace, onComplete }: IsoImportP
     return `${(bytes / (1024 * 1024 * 1024)).toFixed(2)} GB`;
   };
 
-  const spaceAfterImport = availableSpace - totalRequiredSpace;
+  const spaceAfterImport = availableSpace - pendingSize;
   const usagePercent = availableSpace > 0 
-    ? Math.min(100, (totalRequiredSpace / availableSpace) * 100)
+    ? Math.min(100, (pendingSize / availableSpace) * 100)
     : 0;
 
   return (
@@ -214,20 +215,36 @@ export function IsoImport({ mountPoint, availableSpace, onComplete }: IsoImportP
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground flex items-center gap-1.5">
                     <HardDrive className="h-3.5 w-3.5" />
-                    {files.filter(f => f.status === "pending").length} file{files.filter(f => f.status === "pending").length !== 1 ? "s" : ""} · {formatBytes(totalRequiredSpace)}
+                    {state === "idle" 
+                      ? `${pendingFiles.length} file${pendingFiles.length !== 1 ? "s" : ""} · ${formatBytes(pendingSize)}`
+                      : `${files.length} file${files.length !== 1 ? "s" : ""} · ${formatBytes(totalSize)}`
+                    }
                   </span>
-                  <span className={`font-medium ${hasInsufficientSpace ? "text-destructive" : "text-muted-foreground"}`}>
-                    {hasInsufficientSpace 
-                      ? `Need ${formatBytes(totalRequiredSpace - availableSpace)} more`
-                      : `${formatBytes(spaceAfterImport)} free after`
+                  <span className={`font-medium ${hasInsufficientSpace && state === "idle" ? "text-destructive" : "text-muted-foreground"}`}>
+                    {state === "idle" && hasInsufficientSpace 
+                      ? `Need ${formatBytes(pendingSize - availableSpace)} more`
+                      : state === "idle"
+                        ? `${formatBytes(spaceAfterImport)} free after`
+                        : state === "converting"
+                          ? `${successCount}/${files.length} complete`
+                          : `${formatBytes(availableSpace)} available`
                     }
                   </span>
                 </div>
                 
-                <Progress 
-                  value={usagePercent} 
-                  className={`h-1.5 ${hasInsufficientSpace ? "[&>div]:bg-destructive" : ""}`}
-                />
+                {state === "idle" && (
+                  <Progress 
+                    value={usagePercent} 
+                    className={`h-1.5 ${hasInsufficientSpace ? "[&>div]:bg-destructive" : ""}`}
+                  />
+                )}
+                
+                {state === "converting" && (
+                  <Progress 
+                    value={(successCount / files.length) * 100} 
+                    className="h-1.5"
+                  />
+                )}
 
                 {hasInsufficientSpace && (
                   <p className="text-xs text-destructive flex items-center gap-1.5">

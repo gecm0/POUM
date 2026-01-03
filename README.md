@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="public/poum-hero.png" alt="POUM Hero" width="100%" />
+</p>
+
 # POUM
 
 **PS2 OPL USB Manager** - Convert PS2 ISO files to USBExtreme format for Open PS2 Loader.
@@ -11,6 +15,18 @@ A desktop application that prepares USB drives for use with [Open PS2 Loader (OP
 - **Game Library**: View and manage games on your USB drive
 - **Batch Import**: Import multiple ISOs at once with progress tracking
 - **Space Validation**: Checks available storage before importing
+
+## Screenshots
+
+<p align="center">
+  <img src="public/screenshot-1.png" alt="Game Library" width="80%" />
+</p>
+<p align="center"><em>Manage your PS2 game library with an intuitive interface</em></p>
+
+<p align="center">
+  <img src="public/screenshot-2.png" alt="ISO Import" width="80%" />
+</p>
+<p align="center"><em>Batch import ISOs with real-time storage validation</em></p>
 
 ## Download
 

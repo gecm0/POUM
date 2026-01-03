@@ -77,3 +77,7 @@ The built application will be in `src-tauri/target/release/bundle/`.
 ## License
 
 MIT
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for development workflow, commit conventions, and release process.

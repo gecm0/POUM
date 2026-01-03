@@ -14,6 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       release_id: ${{ steps.create-release.outputs.result }}
+      version: ${{ steps.version.outputs.version }}
     steps:
       - uses: actions/checkout@v4
 
@@ -37,9 +38,40 @@ jobs:
             })
             return data.id
 
+  build-frontend:
+    name: Build Frontend
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Cache bun dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.bun/install/cache
+          key: bun-${{ hashFiles('bun.lock') }}
+          restore-keys: bun-
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Build frontend
+        run: bun run build
+
+      - name: Upload frontend artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-dist
+          path: dist/
+          retention-days: 1
+
   build-tauri:
     name: Build (${{ matrix.name }})
-    needs: create-release
+    needs: [create-release, build-frontend]
     strategy:
       fail-fast: false
       matrix:
@@ -61,24 +93,28 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v2
+      - name: Download frontend artifact
+        uses: actions/download-artifact@v4
         with:
-          bun-version: latest
+          name: frontend-dist
+          path: dist/
 
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
         with:
           targets: ${{ matrix.target }}
 
+      - name: Rust cache
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+          key: ${{ matrix.target }}
+
       - name: Install dependencies (Ubuntu)
         if: matrix.platform == 'ubuntu-22.04'
         run: |
           sudo apt-get update
           sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
-
-      - name: Install frontend dependencies
-        run: bun install
 
       - name: Build Tauri app
         uses: tauri-apps/tauri-action@v0

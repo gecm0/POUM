@@ -34,8 +34,15 @@ export function DriveSelector({
   return (
     <div className="flex items-center gap-2">
       <Select value={selectedDrive ?? undefined} onValueChange={onSelect}>
-        <SelectTrigger className="w-[280px]">
-          <SelectValue placeholder="Select a USB drive..." />
+        <SelectTrigger className="w-auto min-w-[200px]">
+          <HardDrive className="h-4 w-4 text-muted-foreground" />
+          {selectedDrive ? (
+            <SelectValue />
+          ) : (
+            <span className="text-muted-foreground">
+              {drives.length === 0 ? "No drives available" : "Select a USB drive..."}
+            </span>
+          )}
         </SelectTrigger>
         <SelectContent>
           {drives.length === 0 ? (

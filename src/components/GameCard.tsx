@@ -54,9 +54,9 @@ export function GameCard({ game, onRename, onDelete }: GameCardProps) {
           <div className="flex items-start justify-between">
             <div className="flex items-center gap-2">
               {game.media_type === "CD" ? (
-                <Disc className="h-5 w-5 text-blue-500" />
+                <Disc className="h-5 w-5 text-accent" />
               ) : (
-                <Disc3 className="h-5 w-5 text-purple-500" />
+                <Disc3 className="h-5 w-5 text-primary" />
               )}
               <span className="rounded bg-muted px-1.5 py-0.5 text-xs font-medium">
                 {game.media_type}
@@ -77,7 +77,7 @@ export function GameCard({ game, onRename, onDelete }: GameCardProps) {
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-8 w-8 text-destructive hover:text-destructive"
+                className="h-8 w-8 hover:bg-destructive hover:text-destructive-foreground"
                 onClick={() => setShowDeleteDialog(true)}
               >
                 <Trash2 className="h-4 w-4" />

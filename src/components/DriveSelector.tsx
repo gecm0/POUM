@@ -54,7 +54,7 @@ export function DriveSelector({
               <SelectItem key={drive.mount_point} value={drive.mount_point}>
                 <div className="flex items-center gap-2">
                   <span>{drive.name || drive.mount_point}</span>
-                  <span className="text-muted-foreground">
+                  <span className="text-xs opacity-70">
                     ({formatBytes(drive.available_space)} free)
                   </span>
                 </div>

@@ -297,7 +297,7 @@ export function IsoImport({ mountPoint, availableSpace, onComplete }: IsoImportP
                                 <Button
                                   variant="ghost"
                                   size="icon"
-                                  className="h-5 w-5 text-muted-foreground hover:text-destructive"
+                                  className="h-5 w-5 text-muted-foreground hover:bg-destructive hover:text-destructive-foreground"
                                   onClick={() => handleRemoveFile(index)}
                                 >
                                   <X className="h-3 w-3" />
@@ -307,13 +307,18 @@ export function IsoImport({ mountPoint, availableSpace, onComplete }: IsoImportP
                           </div>
 
                           {file.status === "pending" && state === "idle" && (
-                            <Input
-                              value={file.name}
-                              onChange={(e) => handleUpdateName(index, e.target.value)}
-                              placeholder="Game name (required)"
-                              maxLength={32}
-                              className="h-8 text-sm"
-                            />
+                            <div className="relative">
+                              <Input
+                                value={file.name}
+                                onChange={(e) => handleUpdateName(index, e.target.value)}
+                                placeholder="Game name (required)"
+                                maxLength={32}
+                                className="h-8 text-sm pr-12"
+                              />
+                              <span className="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">
+                                {file.name.length}/32
+                              </span>
+                            </div>
                           )}
 
                           {(file.status !== "pending" || state !== "idle") && (
@@ -342,7 +347,7 @@ export function IsoImport({ mountPoint, availableSpace, onComplete }: IsoImportP
                     <Button
                       variant="outline"
                       onClick={handleSelectFiles}
-                      className="w-full border-dashed border-2 hover:border-primary hover:bg-primary/5"
+                      className="w-full border-dashed border-2 text-foreground hover:border-primary hover:bg-primary/5 hover:text-foreground"
                     >
                       <FileUp className="h-4 w-4 mr-2" />
                       Add more files

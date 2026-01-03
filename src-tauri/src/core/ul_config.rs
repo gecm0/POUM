@@ -200,7 +200,7 @@ impl UlConfig {
     /// Rename a game
     pub fn rename_game(&mut self, old_name: &str, new_name: &str) -> Result<(), AppError> {
         // Validate new name length
-        if new_name.as_bytes().len() > UL_NAME_SIZE {
+        if new_name.len() > UL_NAME_SIZE {
             return Err(AppError::InvalidGameName(format!(
                 "Name exceeds {} bytes",
                 UL_NAME_SIZE

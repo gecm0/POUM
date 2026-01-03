@@ -43,7 +43,7 @@ impl IsoSplitter {
             MediaType::CD
         };
 
-        let total_parts = ((iso_size + CHUNK_SIZE - 1) / CHUNK_SIZE) as u8;
+        let total_parts = iso_size.div_ceil(CHUNK_SIZE) as u8;
         let crc = get_game_name_crc(&self.game_name);
 
         self.split_iso(&game_id, &crc, total_parts, iso_size, progress_tx)?;

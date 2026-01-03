@@ -1,4 +1,4 @@
-import { Disc } from "lucide-react";
+import { Disc, Upload } from "lucide-react";
 import { GameCard } from "./GameCard";
 import type { Game } from "@/types";
 
@@ -11,14 +11,18 @@ interface GameListProps {
 export function GameList({ games, onRename, onDelete }: GameListProps) {
   if (games.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-border py-16">
-        <Disc className="mb-4 h-12 w-12 text-muted-foreground/50" />
-        <p className="text-lg font-medium text-muted-foreground">
-          No games found
+      <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed py-20">
+        <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-muted">
+          <Disc className="h-10 w-10 text-muted-foreground" />
+        </div>
+        <h2 className="text-xl font-semibold mb-2">No games yet</h2>
+        <p className="text-muted-foreground max-w-sm text-center mb-4">
+          Your game library is empty. Import ISO files to add games to this drive.
         </p>
-        <p className="text-sm text-muted-foreground/75">
-          Import an ISO to get started
-        </p>
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <Upload className="h-4 w-4" />
+          <span>Click "Import ISO" above to get started</span>
+        </div>
       </div>
     );
   }

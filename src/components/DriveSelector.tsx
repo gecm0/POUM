@@ -53,7 +53,6 @@ export function DriveSelector({
             drives.map((drive) => (
               <SelectItem key={drive.mount_point} value={drive.mount_point}>
                 <div className="flex items-center gap-2">
-                  <HardDrive className="h-4 w-4" />
                   <span>{drive.name || drive.mount_point}</span>
                   <span className="text-muted-foreground">
                     ({formatBytes(drive.available_space)} free)

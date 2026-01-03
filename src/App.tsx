@@ -3,6 +3,7 @@ import { Header } from "@/components/Header";
 import { DriveSelector } from "@/components/DriveSelector";
 import { GameList } from "@/components/GameList";
 import { IsoImport } from "@/components/IsoImport";
+import { Usb, FolderOpen } from "lucide-react";
 import {
   getDrives,
   initializeDrive,
@@ -110,6 +111,13 @@ function App() {
     }
   };
 
+  const handleImportComplete = useCallback(() => {
+    refreshGames();
+    refreshDrives();
+  }, [refreshGames, refreshDrives]);
+
+  const selectedDriveInfo = drives.find(d => d.mount_point === selectedDrive);
+
   return (
     <div className="flex min-h-screen flex-col bg-background">
       <Header />
@@ -128,27 +136,32 @@ function App() {
           {selectedDrive && isInitialized && (
             <IsoImport
               mountPoint={selectedDrive}
-              availableSpace={drives.find(d => d.mount_point === selectedDrive)?.available_space ?? 0}
-              onComplete={refreshGames}
+              availableSpace={selectedDriveInfo?.available_space ?? 0}
+              onComplete={handleImportComplete}
             />
           )}
         </div>
 
         {!selectedDrive && (
-          <div className="flex flex-col items-center justify-center py-16 text-center">
-            <p className="text-lg text-muted-foreground">
-              Select a USB drive to manage your PS2 games
+          <div className="flex flex-col items-center justify-center py-20 text-center">
+            <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-muted">
+              <Usb className="h-10 w-10 text-muted-foreground" />
+            </div>
+            <h2 className="text-xl font-semibold mb-2">No drive selected</h2>
+            <p className="text-muted-foreground max-w-sm">
+              Connect a USB drive and select it from the dropdown above to manage your PS2 games
             </p>
           </div>
         )}
 
         {selectedDrive && !isInitialized && (
-          <div className="flex flex-col items-center justify-center py-16 text-center">
-            <p className="text-lg text-muted-foreground">
-              This drive is not set up for Open PS2 Loader
-            </p>
-            <p className="text-sm text-muted-foreground/75">
-              Click "Initialize for OPL" to set up the required folder structure
+          <div className="flex flex-col items-center justify-center py-20 text-center">
+            <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-muted">
+              <FolderOpen className="h-10 w-10 text-muted-foreground" />
+            </div>
+            <h2 className="text-xl font-semibold mb-2">Drive not initialized</h2>
+            <p className="text-muted-foreground max-w-sm">
+              This drive needs to be set up for Open PS2 Loader. Click "Initialize for OPL" to create the required folder structure.
             </p>
           </div>
         )}

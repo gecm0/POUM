@@ -1,6 +1,4 @@
 ---
-la barra de progreso no avanza tan fluidamente como deberia
----
 limpieza de codigo sin romper funcionalidad
 ---
 probar en windows y linux

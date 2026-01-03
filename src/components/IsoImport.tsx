@@ -210,56 +210,30 @@ export function IsoImport({ mountPoint, availableSpace, onComplete }: IsoImportP
 
           {files.length > 0 && (
             <div className="flex flex-col min-h-0 gap-4">
-              <div className="rounded-lg border bg-card p-4 space-y-3">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2 text-sm font-medium">
-                    <HardDrive className="h-4 w-4" />
-                    <span>Storage</span>
-                  </div>
-                  {state === "idle" && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={handleSelectFiles}
-                      className="h-7 text-xs"
-                    >
-                      <FileUp className="h-3 w-3 mr-1" />
-                      Add more
-                    </Button>
-                  )}
+              <div className="px-1 space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground flex items-center gap-1.5">
+                    <HardDrive className="h-3.5 w-3.5" />
+                    {files.filter(f => f.status === "pending").length} file{files.filter(f => f.status === "pending").length !== 1 ? "s" : ""} · {formatBytes(totalRequiredSpace)}
+                  </span>
+                  <span className={`font-medium ${hasInsufficientSpace ? "text-destructive" : "text-muted-foreground"}`}>
+                    {hasInsufficientSpace 
+                      ? `Need ${formatBytes(totalRequiredSpace - availableSpace)} more`
+                      : `${formatBytes(spaceAfterImport)} free after`
+                    }
+                  </span>
                 </div>
                 
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">
-                      {files.filter(f => f.status === "pending").length} file{files.filter(f => f.status === "pending").length !== 1 ? "s" : ""} to import
-                    </span>
-                    <span className="font-medium">{formatBytes(totalRequiredSpace)}</span>
-                  </div>
-                  
-                  <div className="relative">
-                    <Progress 
-                      value={usagePercent} 
-                      className={`h-2 ${hasInsufficientSpace ? "[&>div]:bg-destructive" : ""}`}
-                    />
-                  </div>
-                  
-                  <div className="flex justify-between text-xs text-muted-foreground">
-                    <span>
-                      {hasInsufficientSpace 
-                        ? `Need ${formatBytes(totalRequiredSpace - availableSpace)} more`
-                        : `${formatBytes(spaceAfterImport)} will remain`
-                      }
-                    </span>
-                    <span>{formatBytes(availableSpace)} available</span>
-                  </div>
-                </div>
+                <Progress 
+                  value={usagePercent} 
+                  className={`h-1.5 ${hasInsufficientSpace ? "[&>div]:bg-destructive" : ""}`}
+                />
 
                 {hasInsufficientSpace && (
-                  <div className="flex items-start gap-2 rounded-md bg-destructive/10 text-destructive p-2.5 text-sm">
-                    <AlertCircle className="h-4 w-4 mt-0.5 flex-shrink-0" />
-                    <span>Not enough space on drive. Remove files or free up storage.</span>
-                  </div>
+                  <p className="text-xs text-destructive flex items-center gap-1.5">
+                    <AlertCircle className="h-3 w-3" />
+                    Not enough space. Remove files or free up storage.
+                  </p>
                 )}
               </div>
 
@@ -346,28 +320,39 @@ export function IsoImport({ mountPoint, availableSpace, onComplete }: IsoImportP
                       </div>
                     </div>
                   ))}
+
+                  {state === "idle" && (
+                    <Button
+                      variant="outline"
+                      onClick={handleSelectFiles}
+                      className="w-full border-dashed border-2 hover:border-primary hover:bg-primary/5"
+                    >
+                      <FileUp className="h-4 w-4 mr-2" />
+                      Add more files
+                    </Button>
+                  )}
                 </div>
               </div>
 
               {state === "done" && (
-                <div className="rounded-lg border bg-card p-4">
+                <div className={`rounded-lg p-4 ${
+                  errorCount > 0 
+                    ? "bg-yellow-500/10 border border-yellow-500/30" 
+                    : "bg-green-500/10 border border-green-500/30"
+                }`}>
                   <div className="flex items-center gap-3">
-                    <div className={`h-10 w-10 rounded-full flex items-center justify-center ${
-                      errorCount > 0 ? "bg-yellow-500/10" : "bg-green-500/10"
-                    }`}>
-                      {errorCount > 0 ? (
-                        <AlertCircle className="h-5 w-5 text-yellow-500" />
-                      ) : (
-                        <Check className="h-5 w-5 text-green-500" />
-                      )}
-                    </div>
+                    {errorCount > 0 ? (
+                      <AlertCircle className="h-5 w-5 text-yellow-500" />
+                    ) : (
+                      <Check className="h-5 w-5 text-green-500" />
+                    )}
                     <div>
-                      <p className="font-medium">
-                        {errorCount > 0 ? "Import completed with errors" : "Import complete"}
+                      <p className={`font-medium ${errorCount > 0 ? "text-yellow-600 dark:text-yellow-400" : "text-green-600 dark:text-green-400"}`}>
+                        {errorCount > 0 ? "Completed with errors" : "Import complete!"}
                       </p>
                       <p className="text-sm text-muted-foreground">
-                        {successCount} imported successfully
-                        {errorCount > 0 && `, ${errorCount} failed`}
+                        {successCount} game{successCount !== 1 ? "s" : ""} ready to play
+                        {errorCount > 0 && ` · ${errorCount} failed`}
                       </p>
                     </div>
                   </div>

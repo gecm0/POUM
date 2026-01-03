@@ -28,9 +28,10 @@ This project uses [Conventional Commits](https://www.conventionalcommits.org/) f
 3. Bumps version based on commit prefixes
 4. Updates `package.json`, `Cargo.toml`, `tauri.conf.json`
 5. Creates git tag (e.g., `v0.2.0`)
-6. Pushes tag → triggers release
+6. Triggers release workflow via `workflow_dispatch`
 
-### On Tag Push (`v*`)
+### Release Build
+- Triggered automatically by version bump (or manually via Actions UI)
 - Builds frontend once, shares across platforms
 - Builds Tauri for macOS (ARM + Intel), Windows, Linux
 - Creates GitHub Release with all artifacts

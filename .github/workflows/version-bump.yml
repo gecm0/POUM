@@ -9,6 +9,7 @@ on:
 
 permissions:
   contents: write
+  actions: write
 
 jobs:
   version-bump:
@@ -60,3 +61,9 @@ jobs:
           git tag v${{ steps.version.outputs.version }}
           git push
           git push --tags
+
+      - name: Trigger release workflow
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh workflow run release.yml -f version=${{ steps.version.outputs.version }}

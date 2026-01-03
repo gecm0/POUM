@@ -1,6 +1,6 @@
 [package]
 name = "poum"
-version = "0.1.0"
+version = "0.2.0"
 description = "PS2 OPL USB Manager - Convert ISO files to USBExtreme format for Open PS2 Loader"
 authors = ["German Castro"]
 edition = "2021"

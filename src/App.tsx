@@ -126,7 +126,11 @@ function App() {
           />
           
           {selectedDrive && isInitialized && (
-            <IsoImport mountPoint={selectedDrive} onComplete={refreshGames} />
+            <IsoImport
+              mountPoint={selectedDrive}
+              availableSpace={drives.find(d => d.mount_point === selectedDrive)?.available_space ?? 0}
+              onComplete={refreshGames}
+            />
           )}
         </div>
 

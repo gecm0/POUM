@@ -39,3 +39,7 @@ export async function convertIso(
 ): Promise<void> {
   return invoke("convert_iso", { isoPath, mountPoint, gameName });
 }
+
+export async function getFileSizes(paths: string[]): Promise<number[]> {
+  return invoke<number[]>("get_file_sizes", { paths });
+}

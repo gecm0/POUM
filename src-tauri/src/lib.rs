@@ -4,7 +4,7 @@ mod error;
 mod fs;
 
 use commands::conversion::convert_iso;
-use commands::drives::{get_drives, initialize_drive, is_drive_initialized};
+use commands::drives::{get_drives, get_file_sizes, initialize_drive, is_drive_initialized};
 use commands::games::{delete_game, list_games, rename_game};
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -14,6 +14,7 @@ pub fn run() {
         .plugin(tauri_plugin_dialog::init())
         .invoke_handler(tauri::generate_handler![
             get_drives,
+            get_file_sizes,
             initialize_drive,
             is_drive_initialized,
             list_games,

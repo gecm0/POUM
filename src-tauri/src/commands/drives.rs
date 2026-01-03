@@ -1,8 +1,21 @@
 use crate::fs::{list_usb_drives, DriveInfo, OplStructure};
+use std::path::Path;
 
 #[tauri::command]
 pub fn get_drives() -> Vec<DriveInfo> {
     list_usb_drives()
+}
+
+#[tauri::command]
+pub fn get_file_sizes(paths: Vec<String>) -> Result<Vec<u64>, String> {
+    paths
+        .iter()
+        .map(|path| {
+            std::fs::metadata(Path::new(path))
+                .map(|m| m.len())
+                .map_err(|e| format!("Failed to get size for {}: {}", path, e))
+        })
+        .collect()
 }
 
 #[tauri::command]

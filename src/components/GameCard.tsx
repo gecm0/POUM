@@ -17,17 +17,13 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { formatBytes } from "@/lib/utils";
 import type { Game } from "@/types";
 
 interface GameCardProps {
   game: Game;
   onRename: (oldName: string, newName: string) => void;
   onDelete: (name: string) => void;
-}
-
-function formatBytes(bytes: number): string {
-  const gb = bytes / (1024 * 1024 * 1024);
-  return `${gb.toFixed(2)} GB`;
 }
 
 export function GameCard({ game, onRename, onDelete }: GameCardProps) {

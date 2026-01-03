@@ -15,6 +15,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { convertIso, getFileSizes } from "@/lib/commands";
+import { formatBytes } from "@/lib/utils";
 import type { ConversionProgress } from "@/types";
 
 interface IsoImportProps {
@@ -162,13 +163,6 @@ export function IsoImport({ mountPoint, availableSpace, onComplete }: IsoImportP
   
   const hasInsufficientSpace = pendingSize > availableSpace;
   const canConvert = files.length > 0 && files.every((f) => f.name.trim()) && state === "idle" && !hasInsufficientSpace;
-
-  const formatBytes = (bytes: number): string => {
-    if (bytes < 1024) return `${bytes} B`;
-    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-    if (bytes < 1024 * 1024 * 1024) return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
-    return `${(bytes / (1024 * 1024 * 1024)).toFixed(2)} GB`;
-  };
 
   const spaceAfterImport = availableSpace - pendingSize;
   const usagePercent = availableSpace > 0 

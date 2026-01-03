@@ -17,6 +17,7 @@ pub struct Game {
 }
 
 impl Game {
+    #[allow(dead_code)]
     pub fn new(name: String, serial: String, parts: u8, media_type: MediaType) -> Self {
         Self {
             name,

@@ -41,14 +41,17 @@ impl OplStructure {
         self.root.join("ul.cfg")
     }
 
+    #[allow(dead_code)]
     pub fn dvd_dir(&self) -> std::path::PathBuf {
         self.root.join("DVD")
     }
 
+    #[allow(dead_code)]
     pub fn cd_dir(&self) -> std::path::PathBuf {
         self.root.join("CD")
     }
 
+    #[allow(dead_code)]
     pub fn art_dir(&self) -> std::path::PathBuf {
         self.root.join("ART")
     }

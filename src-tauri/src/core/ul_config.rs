@@ -28,6 +28,7 @@ pub const MEDIA_TYPE_DVD: u8 = 0x14;
 pub const USBEXTREME_MAGIC: u8 = 0x08;
 
 /// ul.cfg binary entry structure offsets
+#[allow(dead_code)]
 mod offsets {
     pub const NAME: usize = 0;          // 0x00: Game name (32 bytes)
     pub const PREFIX: usize = 32;       // 0x20: "ul." prefix (3 bytes)
@@ -191,6 +192,7 @@ impl UlConfig {
     }
 
     /// Find a game by name
+    #[allow(dead_code)]
     pub fn find_game(&self, name: &str) -> Option<&Game> {
         self.games.iter().find(|g| g.name == name)
     }

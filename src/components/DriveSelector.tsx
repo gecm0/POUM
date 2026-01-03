@@ -7,6 +7,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
+import { formatBytes } from "@/lib/utils";
 import type { DriveInfo } from "@/types";
 
 interface DriveSelectorProps {
@@ -16,11 +17,6 @@ interface DriveSelectorProps {
   onSelect: (mountPoint: string) => void;
   onRefresh: () => void;
   onInitialize: () => void;
-}
-
-function formatBytes(bytes: number): string {
-  const gb = bytes / (1024 * 1024 * 1024);
-  return `${gb.toFixed(1)} GB`;
 }
 
 export function DriveSelector({

@@ -1,7 +1,7 @@
 {
   "name": "poum",
   "private": true,
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "PS2 OPL USB Manager - Convert ISO files to USBExtreme format for Open PS2 Loader",
   "type": "module",
   "scripts": {

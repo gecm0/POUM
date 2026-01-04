@@ -1,0 +1,26 @@
+[package]
+name = "poum"
+version = "0.2.1"
+description = "PS2 OPL USB Manager - Convert ISO files to USBExtreme format for Open PS2 Loader"
+authors = ["German Castro"]
+edition = "2021"
+
+[lib]
+name = "poum_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
+tauri-plugin-opener = "2"
+tauri-plugin-dialog = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+thiserror = "1"
+tokio = { version = "1", features = ["full"] }
+sysinfo = "0.31"
+regex = "1"
+iso9660 = "0.1"
+

@@ -1,0 +1,69 @@
+name: Version Bump
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - '.github/workflows/**'
+      - 'CHANGELOG.md'
+
+permissions:
+  contents: write
+  actions: write
+
+jobs:
+  version-bump:
+    name: Bump Version
+    runs-on: ubuntu-latest
+    if: "!contains(github.event.head_commit.message, 'chore: bump version')"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Determine version bump type
+        id: bump-type
+        run: |
+          COMMITS=$(git log --oneline $(git describe --tags --abbrev=0 2>/dev/null || git rev-list --max-parents=0 HEAD)..HEAD)
+          
+          if echo "$COMMITS" | grep -qE "^[a-f0-9]+ (feat|feature)(\(.+\))?!?:"; then
+            echo "type=minor" >> $GITHUB_OUTPUT
+          elif echo "$COMMITS" | grep -qE "^[a-f0-9]+ (fix|bugfix|perf)(\(.+\))?:"; then
+            echo "type=patch" >> $GITHUB_OUTPUT
+          elif echo "$COMMITS" | grep -qE "^[a-f0-9]+ BREAKING CHANGE:"; then
+            echo "type=major" >> $GITHUB_OUTPUT
+          else
+            echo "type=patch" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Bump version
+        id: version
+        run: |
+          node scripts/bump-version.js ${{ steps.bump-type.outputs.type }}
+          NEW_VERSION=$(node -p "require('./package.json').version")
+          echo "version=$NEW_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Commit and tag
+        run: |
+          git add package.json src-tauri/Cargo.toml src-tauri/tauri.conf.json
+          git commit -m "chore: bump version to ${{ steps.version.outputs.version }}"
+          git tag v${{ steps.version.outputs.version }}
+          git push
+          git push --tags
+
+      - name: Trigger release workflow
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh workflow run release.yml -f version=${{ steps.version.outputs.version }}

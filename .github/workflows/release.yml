@@ -20,6 +20,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       release_id: ${{ steps.create-release.outputs.result }}
+      upload_url: ${{ steps.create-release.outputs.upload_url }}
       version: ${{ steps.version.outputs.version }}
     steps:
       - uses: actions/checkout@v4
@@ -43,10 +44,11 @@ jobs:
               repo: context.repo.repo,
               tag_name: `v${{ steps.version.outputs.version }}`,
               name: `POUM v${{ steps.version.outputs.version }}`,
-              body: `## What's Changed\n\nSee [CHANGELOG](https://github.com/${context.repo.owner}/${context.repo.repo}/blob/main/CHANGELOG.md) for details.\n\n## Downloads\n\n| Platform | Download |\n|----------|----------|\n| macOS (Apple Silicon) | \`POUM_${{ steps.version.outputs.version }}_aarch64.dmg\` |\n| macOS (Intel) | \`POUM_${{ steps.version.outputs.version }}_x64.dmg\` |\n| Windows | \`POUM_${{ steps.version.outputs.version }}_x64-setup.exe\` |\n| Linux (AppImage) | \`POUM_${{ steps.version.outputs.version }}_amd64.AppImage\` |\n| Linux (deb) | \`POUM_${{ steps.version.outputs.version }}_amd64.deb\` |`,
+              body: `## What's Changed\n\nSee [CHANGELOG](https://github.com/${context.repo.owner}/${context.repo.repo}/blob/main/CHANGELOG.md) for details.\n\n## Downloads\n\n| Platform | Download |\n|----------|----------|\n| macOS (Apple Silicon) | \`POUM_${{ steps.version.outputs.version }}_aarch64.dmg\` |\n| macOS (Intel) | \`POUM_${{ steps.version.outputs.version }}_x64.dmg\` |\n| Windows | \`POUM_${{ steps.version.outputs.version }}_x64-setup.exe\` |\n| Linux (AppImage) | \`POUM_${{ steps.version.outputs.version }}_amd64.AppImage\` |\n| Linux (deb) | \`POUM_${{ steps.version.outputs.version }}_amd64.deb\` |\n\n## macOS Installation Note\n\nIf you see **"POUM is damaged and can't be opened"**, run this command in Terminal:\n\n\`\`\`bash\nxattr -cr /Applications/POUM.app\n\`\`\`\n\nOr right-click the app → Open → Open (bypass Gatekeeper on first launch).`,
               draft: true,
               prerelease: false
             })
+            core.setOutput('upload_url', data.upload_url)
             return data.id
 
   build-frontend:
@@ -130,7 +132,8 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
 
-      - name: Build Tauri app
+      - name: Build Tauri app (non-macOS)
+        if: matrix.platform != 'macos-latest'
         uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -138,6 +141,59 @@ jobs:
           releaseId: ${{ needs.create-release.outputs.release_id }}
           args: --target ${{ matrix.target }} --config '{"build":{"beforeBuildCommand":""}}'
           tauriScript: cargo tauri
+
+      - name: Build Tauri app (macOS)
+        if: matrix.platform == 'macos-latest'
+        run: cargo tauri build --target ${{ matrix.target }} --config '{"build":{"beforeBuildCommand":""}}'
+
+      - name: Ad-hoc sign and repackage macOS app
+        if: matrix.platform == 'macos-latest'
+        run: |
+          # Find the .app bundle
+          APP_PATH=$(find src-tauri/target/${{ matrix.target }}/release/bundle/macos -name "*.app" -type d | head -1)
+          if [ -z "$APP_PATH" ]; then
+            echo "Error: Could not find .app bundle"
+            exit 1
+          fi
+          
+          echo "Signing $APP_PATH"
+          codesign --force --deep --sign - "$APP_PATH"
+          
+          # Get app name and version for DMG naming
+          APP_NAME=$(basename "$APP_PATH" .app)
+          VERSION="${{ needs.create-release.outputs.version }}"
+          
+          # Determine architecture suffix
+          if [ "${{ matrix.target }}" = "aarch64-apple-darwin" ]; then
+            ARCH="aarch64"
+          else
+            ARCH="x64"
+          fi
+          
+          # Create DMG
+          DMG_NAME="${APP_NAME}_${VERSION}_${ARCH}.dmg"
+          DMG_PATH="src-tauri/target/${{ matrix.target }}/release/bundle/dmg/${DMG_NAME}"
+          
+          # Remove old DMG if exists and create new one
+          rm -f "$DMG_PATH"
+          mkdir -p "$(dirname "$DMG_PATH")"
+          
+          # Create a simple DMG with the signed app
+          hdiutil create -volname "$APP_NAME" -srcfolder "$APP_PATH" -ov -format UDZO "$DMG_PATH"
+          
+          echo "DMG_PATH=$DMG_PATH" >> $GITHUB_ENV
+          echo "DMG_NAME=$DMG_NAME" >> $GITHUB_ENV
+
+      - name: Upload macOS DMG to release
+        if: matrix.platform == 'macos-latest'
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.create-release.outputs.upload_url }}
+          asset_path: ${{ env.DMG_PATH }}
+          asset_name: ${{ env.DMG_NAME }}
+          asset_content_type: application/x-apple-diskimage
 
   publish-release:
     name: Publish Release

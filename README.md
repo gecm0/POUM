@@ -30,7 +30,7 @@ A desktop application that prepares USB drives for use with [Open PS2 Loader (OP
 
 ## Download
 
-Download the latest release for your platform from the [Releases](https://github.com/germancastro/poum/releases) page.
+Download the latest release for your platform from the [Releases](https://github.com/gecm0/POUM/releases) page.
 
 ## Usage
 
